@@ -3,7 +3,7 @@ namespace webtoolsnz\scheduler\actions;
 
 use Yii;
 use yii\base\Action;
-use webtoolsnz\scheduler\models\SchedulerTask;
+use webtoolsnz\scheduler\models\base\SchedulerTask;
 
 /**
  * Class IndexAction

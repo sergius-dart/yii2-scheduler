@@ -10,24 +10,50 @@ use yii\data\ActiveDataProvider;
  *
  * @property integer $id
  * @property string $name
- * @property string $schedule
+ * @property string $crom
  * @property string $description
- * @property integer $status_id
- * @property string $started_at
- * @property string $last_run
- * @property string $next_run
+ * @property string $class_run
+ * @property string $init_args
+ * @property integer $last_log_id
  * @property integer $active
  *
  * @property \webtoolsnz\scheduler\models\SchedulerLog[] $schedulerLogs
  */
 class SchedulerTask extends \yii\db\ActiveRecord
 {
+    const STATUS_INACTIVE = 0;
+    const STATUS_PENDING = 10;
+    const STATUS_DUE = 20;
+    const STATUS_RUNNING = 30;
+    const STATUS_OVERDUE = 40;
+    const STATUS_ERROR = 50;
+    /**
+     * @var array
+     */
+    private static $_statuses = [
+        self::STATUS_INACTIVE => 'Inactive',
+        self::STATUS_PENDING => 'Pending',
+        self::STATUS_DUE => 'Due',
+        self::STATUS_RUNNING => 'Running',
+        self::STATUS_OVERDUE => 'Overdue',
+        self::STATUS_ERROR => 'Error',
+    ];
+
+    // const SCENARIO_CREATE = 'create'; //default scenario
+    const SCENARIO_SEARCH = 'search';
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
         return 'scheduler_task';
+    }
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $scenarios[self::SCENARIO_SEARCH] = $scenarios[self::SCENARIO_DEFAULT]; //copy all attributes from default)
+        return $scenarios;
     }
 
     /**
@@ -52,12 +78,13 @@ class SchedulerTask extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'schedule', 'description', 'status_id'], 'required'],
-            [['description'], 'string'],
-            [['status_id', 'active'], 'integer'],
-            [['started_at', 'last_run', 'next_run'], 'safe'],
-            [['name', 'schedule'], 'string', 'max' => 45],
-            [['name'], 'unique']
+            [['name', 'cron'] , 'required', 'on'=>self::SCENARIO_DEFAULT],
+            [['description', 'class_run','init_args'], 'string'],
+            [['scheduler_task_id','active'], 'integer'],
+            [['last_log_id', 'last_run'], 'safe'],
+            [['name', 'cron'], 'string', 'max' => 45],
+            [ 'active', 'default', 'value'=>1 , 'on'=>self::SCENARIO_DEFAULT],
+            [ 'description', 'default', 'value'=>'', 'on'=>self::SCENARIO_DEFAULT]
         ];
     }
 
@@ -67,14 +94,13 @@ class SchedulerTask extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
+            'scheduler_task_id' => Yii::t('app', 'scheduler_task_id'),
             'name' => Yii::t('app', 'Name'),
-            'schedule' => Yii::t('app', 'Schedule'),
             'description' => Yii::t('app', 'Description'),
-            'status_id' => Yii::t('app', 'Status ID'),
-            'started_at' => Yii::t('app', 'Started At'),
-            'last_run' => Yii::t('app', 'Last Run'),
-            'next_run' => Yii::t('app', 'Next Run'),
+            'cron'=>Yii::t('app','cron expression'),
+            'class_run'=>Yii::t('app','class to run'),
+            'init_args' => Yii::t('app', 'Initial arguments'),
+            'last_log_id'=>Yii::t('app','Last log'),
             'active' => Yii::t('app', 'Active'),
         ];
     }
@@ -84,7 +110,12 @@ class SchedulerTask extends \yii\db\ActiveRecord
      */
     public function getSchedulerLogs()
     {
-        return $this->hasMany(\webtoolsnz\scheduler\models\SchedulerLog::className(), ['scheduled_task_id' => 'id']);
+        return $this->hasMany(\webtoolsnz\scheduler\models\SchedulerLog::className(), ['scheduled_task_id' => 'scheduled_task_id']);
+    }
+
+    public function getLastLog()
+    {
+        return $this->hasOne(\webtoolsnz\scheduler\models\SchedulerLog::className(), ['scheduler_log_id' => 'last_log_id']);
     }
 
     /**
@@ -102,25 +133,53 @@ class SchedulerTask extends \yii\db\ActiveRecord
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'sort' => ['defaultOrder'=>['id'=>SORT_DESC]],
+            'sort' => ['defaultOrder'=>['scheduler_task_id'=>SORT_DESC]],
         ]);
 
         $this->load($params, $formName);
 
         $query->andFilterWhere([
-            'id' => $this->id,
-            'status_id' => $this->status_id,
+            'scheduler_task_id' => $this->scheduler_task_id,
             'active' => $this->active,
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'schedule', $this->schedule])
             ->andFilterWhere(['like', 'description', $this->description])
-            ->andFilterWhere(['like', 'started_at', $this->started_at])
-            ->andFilterWhere(['like', 'last_run', $this->last_run])
-            ->andFilterWhere(['like', 'next_run', $this->next_run]);
+            ->andFilterWhere(['like', 'cron', $this->cron])
+            ->andFilterWhere(['like', 'class_run', $this->class_run])
+            ->andFilterWhere(['like', 'init_args', $this->init_args])
+            ;
 
         return $dataProvider;
+    }
+
+    public function getId()
+    {
+        return $this->scheduler_task_id;
+    }
+
+    public function getNextRunDate($currentTime = 'now')
+    {
+        return CronExpression::factory($this->cron)
+            ->getNextRunDate($currentTime)
+            ;
+    }
+
+    public function getPreviousRunDate($currentTime = 'now')
+    {
+        return CronExpression::factory($this->cron)
+            ->getPreviousRunDate($currentTime)
+            ;
+    }
+
+    public function getStatus()
+    {
+        return self::STATUS_DUE;
+    }
+
+    public function getLockName()
+    {
+        return 'TaskLock_'.$this->id;
     }
 }
 

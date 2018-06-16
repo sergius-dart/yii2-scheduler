@@ -50,7 +50,7 @@ class SchedulerLog extends \yii\db\ActiveRecord
     {
         return [
             [['scheduler_task_id', 'output'], 'required'],
-            [['scheduler_task_id', 'error'], 'integer'],
+            [['scheduler_task_id', 'exit_code','scheduler_log_id'], 'integer'],
             [['started_at', 'ended_at'], 'safe'],
             [['output'], 'string']
         ];
@@ -62,12 +62,12 @@ class SchedulerLog extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
+            'scheduler_log_id' => Yii::t('app', 'scheduler_log_id'),
             'scheduler_task_id' => Yii::t('app', 'Scheduler Task ID'),
             'started_at' => Yii::t('app', 'Started At'),
             'ended_at' => Yii::t('app', 'Ended At'),
             'output' => Yii::t('app', 'Output'),
-            'error' => Yii::t('app', 'Error'),
+            'exit_code' => Yii::t('app', 'Error'),
         ];
     }
 
@@ -102,7 +102,7 @@ class SchedulerLog extends \yii\db\ActiveRecord
         $query->andFilterWhere([
             'id' => $this->id,
             'scheduler_task_id' => $this->scheduler_task_id,
-            'error' => $this->error,
+            'exit_code' => $this->exit_code,
         ]);
 
         $query->andFilterWhere(['like', 'started_at', $this->started_at])
@@ -110,6 +110,11 @@ class SchedulerLog extends \yii\db\ActiveRecord
             ->andFilterWhere(['like', 'output', $this->output]);
 
         return $dataProvider;
+    }
+
+    public function getId()
+    {
+        return $this->scheduler_log_id;
     }
 }
 

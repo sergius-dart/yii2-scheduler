@@ -1,10 +1,10 @@
 <?php
 namespace webtoolsnz\scheduler\actions;
 
-use webtoolsnz\scheduler\models\SchedulerLog;
+use webtoolsnz\scheduler\models\base\SchedulerLog;
 use Yii;
 use yii\base\Action;
-use webtoolsnz\scheduler\models\SchedulerTask;
+use webtoolsnz\scheduler\models\base\SchedulerTask;
 
 /**
  * Class UpdateAction

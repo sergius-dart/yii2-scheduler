@@ -4,9 +4,10 @@
 namespace webtoolsnz\scheduler;
 
 use webtoolsnz\scheduler\events\TaskEvent;
-use webtoolsnz\scheduler\models\SchedulerTask;
+use webtoolsnz\scheduler\models\base\SchedulerTask;
 use yii\helpers\StringHelper;
 use Cron\CronExpression;
+use \DateTime;
 
 /**
  * Class Task
@@ -14,13 +15,15 @@ use Cron\CronExpression;
  */
 abstract class Task extends \yii\base\Component
 {
+    const TASK_FAILED = -1;
+    const TASK_SUCCESS = 1;
     const EVENT_BEFORE_RUN = 'TaskBeforeRun';
     const EVENT_AFTER_RUN = 'TaskAfterRun';
 
     /**
      * @var bool create a database lock to ensure the task only runs once
      */
-    public $databaseLock = true;
+    static public $databaseLock = true;
 
     /**
      * Exception raised during run (if any)
@@ -34,21 +37,7 @@ abstract class Task extends \yii\base\Component
      *
      * @var String
      */
-    public $description;
-
-    /**
-     * The cron expression that determines how often this task should run.
-     *
-     * @var String
-     */
-    public $schedule;
-
-    /**
-     * Active flag allows you to set the task to inactive (meaning it will not run)
-     *
-     * @var bool
-     */
-    public $active = true;
+    static public $description;
 
     /**
      * How many seconds after due date to wait until the task becomes overdue and is re-run.
@@ -56,7 +45,7 @@ abstract class Task extends \yii\base\Component
      *
      * @var int
      */
-    public $overdueThreshold = 3600;
+    static public $overdueThreshold = 3600;
 
     /**
      * @var null|SchedulerTask
@@ -67,7 +56,7 @@ abstract class Task extends \yii\base\Component
     {
         parent::init();
 
-        $lockName = 'TaskLock'.\yii\helpers\Inflector::camelize(self::className());
+        $lockName = $this->lockName;
         \yii\base\Event::on(self::className(), self::EVENT_BEFORE_RUN, function ($event) use ($lockName) {
             /* @var $event TaskEvent */
             $db = \Yii::$app->db;
@@ -87,40 +76,12 @@ abstract class Task extends \yii\base\Component
     }
 
     /**
-     * The main method that gets invoked whenever a task is ran, any errors that occur
-     * inside this method will be captured by the TaskRunner and logged against the task.
-     *
-     * @return mixed
-     */
-    abstract public function run();
-
-    /**
-     * @param string|\DateTime $currentTime
-     * @return string
-     */
-    public function getNextRunDate($currentTime = 'now')
-    {
-        return CronExpression::factory($this->schedule)
-            ->getNextRunDate($currentTime)
-            ->format('Y-m-d H:i:s');
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return StringHelper::basename(get_class($this));
-    }
-
-    /**
      * @param SchedulerTask $model
      */
-    public function setModel($model)
+    public function setModel(SchedulerTask $model)
     {
         $this->_model = $model;
     }
-
     /**
      * @return SchedulerTask
      */
@@ -128,6 +89,14 @@ abstract class Task extends \yii\base\Component
     {
         return $this->_model;
     }
+
+    /**
+     * The main method that gets invoked whenever a task is ran, any errors that occur
+     * inside this method will be captured by the TaskRunner and logged against the task.
+     *
+     * @return mixed
+     */
+    abstract public function run();
 
     /**
      * @param $str
@@ -159,20 +128,25 @@ abstract class Task extends \yii\base\Component
     }
 
     /**
+     * @param SchedulerTask $model - check model to need run
      * @param bool $forceRun
      * @return bool
      */
-    public function shouldRun($forceRun = false)
+    public function shouldRun(SchedulerTask $model, $forceRun = false)
     {
-        $model = $this->getModel();
-        $isDue = in_array($model->status_id, [SchedulerTask::STATUS_DUE, SchedulerTask::STATUS_OVERDUE, SchedulerTask::STATUS_ERROR]);
-        $isRunning = $model->status_id == SchedulerTask::STATUS_RUNNING;
-        $overdue = false;
-        if((strtotime($model->started_at) + $this->overdueThreshold) <= strtotime("now")) {
-            $overdue = true;
-        }
+        $prev_run_date = $model->previousRunDate;
 
-        return ($model->active && ((!$isRunning && ($isDue || $forceRun)) || ($isRunning && $overdue)));
+        if (!$prev_run_date)
+            return $forceRun;
+
+        $due_seconds = (new DateTime() )->getTimestamp() - $prev_run_date->getTimestamp();
+
+        if ( $due_seconds > self::overdueThreshold )
+            return $forceRun;
+
+        if ( !$model->active )
+            return $forceRun;
+
+        return True;
     }
-
 }

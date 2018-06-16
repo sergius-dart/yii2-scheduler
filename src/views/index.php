@@ -11,7 +11,7 @@ use yii\helpers\Url;
 use yii\grid\GridView;
 
 
-$this->title = \webtoolsnz\scheduler\models\SchedulerTask::label(2);
+$this->title = 'hello';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -40,7 +40,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 'name',
                 'description',
-                'schedule',
+                'cron',
                 'status'
             ],
         ]); ?>

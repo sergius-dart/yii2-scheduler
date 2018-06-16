@@ -15,7 +15,7 @@ use yii\grid\GridView;
 
 
 $this->title = $model->__toString();
-$this->params['breadcrumbs'][] = ['label' => SchedulerTask::label(2), 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'hello', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->__toString();
 ?>
 <div class="task-update">
@@ -31,16 +31,8 @@ $this->params['breadcrumbs'][] = $model->__toString();
 
     <?= $form->field($model, 'name', ['inputOptions' => ['disabled' => 'disabled']]) ?>
     <?= $form->field($model, 'description', ['inputOptions' => ['disabled' => 'disabled']]) ?>
-    <?= $form->field($model, 'schedule', ['inputOptions' => ['disabled' => 'disabled']]) ?>
-    <?= $form->field($model, 'status', ['inputOptions' => ['disabled' => 'disabled']]) ?>
-
-    <?php if ($model->status_id == SchedulerTask::STATUS_RUNNING): ?>
-        <?= $form->field($model, 'started_at', ['inputOptions' => ['disabled' => 'disabled']]) ?>
-    <?php endif ?>
-
-    <?= $form->field($model, 'last_run', ['inputOptions' => ['disabled' => 'disabled']]) ?>
-    <?= $form->field($model, 'next_run', ['inputOptions' => ['disabled' => 'disabled']]) ?>
-
+    <?= $form->field($model, 'cron', ['inputOptions' => ['disabled' => 'disabled']]) ?>
+    
     <?= $form->field($model, 'active')->widget(RadioButtonGroup::className(), [
         'items' => [1 => 'Yes', 0 => 'No'],
         'itemOptions' => [
