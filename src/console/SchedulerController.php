@@ -185,11 +185,12 @@ class SchedulerController extends Controller
     
     private function runTaskRecord(SchedulerTask $task)
     {
-        echo sprintf("\tRunning %s...".PHP_EOL, $task->name );
+        echo sprintf("Check %s...".PHP_EOL, $task->name );
         try{
             $cl_name = $task->class_run;
             if ( $cl_name::shouldRun($task,$this->force) )
             {
+                echo sprintf("Prepare %s...".PHP_EOL, $task->name );
                 $task_obj = new $cl_name( array_merge( $task->initArgs, ['model'=>$task] )) ;
                 if ( !$task_obj->lockTable() )
                 {
@@ -197,17 +198,18 @@ class SchedulerController extends Controller
                     return;
                 }
                 $log_obj = new SchedulerLog([
-                    'started_at' => (new DateTime())->getTimestamp(),
+                    'started_at' => (new DateTime())->format('Y-m-d H:i:s'),
                 ]);
+                var_dump($log_obj);
                 $log_obj->link( 'schedulerTask', $task );
-                $log_obj->save();
+                // $log_obj->save();
 
                 ob_start();
                 $log_obj->exit_code = $task_obj->run();
 
                 $log_obj->output = ob_get_contents();
                 ob_end_clean();
-
+                $log_obj->ended_at = (new DateTime())->format('Y-m-d H:i:s');
                 $log_obj->save();
             }
         } catch (\ReflectionException $e) {

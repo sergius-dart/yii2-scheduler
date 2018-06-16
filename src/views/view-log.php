@@ -36,7 +36,7 @@ $this->params['breadcrumbs'][] = $model->__toString();
 
             <dt>Result</dt>
             <dd>
-                <?php if ($model->exit_code): ?>
+                <?php if (is_null($model->exit_code) || $model->exit_code < 0 ): ?>
                     <span class="text-danger glyphicon glyphicon-remove-circle"></span> Error
                 <?php else: ?>
                     <span class="text-success glyphicon glyphicon-ok-circle"></span> Success
