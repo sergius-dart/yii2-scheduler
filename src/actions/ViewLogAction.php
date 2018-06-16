@@ -3,7 +3,7 @@ namespace webtoolsnz\scheduler\actions;
 
 use Yii;
 use yii\base\Action;
-use webtoolsnz\scheduler\models\SchedulerLog;
+use webtoolsnz\scheduler\models\base\SchedulerLog;
 
 /**
  * Class UpdateAction

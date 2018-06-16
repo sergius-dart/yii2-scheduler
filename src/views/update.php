@@ -82,7 +82,7 @@ $this->params['breadcrumbs'][] = $model->__toString();
                     'contentOptions' => ['class' => 'text-center'],
                     'value' => function ($m) {
                         return Html::tag('span', '', [
-                            'class' => $m->error == 0 ? 'text-success glyphicon glyphicon-ok-circle' : 'text-danger glyphicon glyphicon-remove-circle'
+                            'class' => $m->exit_code == 0 ? 'text-success glyphicon glyphicon-ok-circle' : 'text-danger glyphicon glyphicon-remove-circle'
                         ]);
                     }
                 ],

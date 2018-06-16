@@ -5,6 +5,7 @@ namespace webtoolsnz\scheduler;
 
 use webtoolsnz\scheduler\events\TaskEvent;
 use webtoolsnz\scheduler\models\base\SchedulerTask;
+use webtoolsnz\scheduler\models\base\SchedulerLog;
 use yii\helpers\StringHelper;
 use Cron\CronExpression;
 use \DateTime;
@@ -15,8 +16,6 @@ use \DateTime;
  */
 abstract class Task extends \yii\base\Component
 {
-    const TASK_FAILED = -1;
-    const TASK_SUCCESS = 1;
     const EVENT_BEFORE_RUN = 'TaskBeforeRun';
     const EVENT_AFTER_RUN = 'TaskAfterRun';
 
@@ -132,7 +131,7 @@ abstract class Task extends \yii\base\Component
      * @param bool $forceRun
      * @return bool
      */
-    public function shouldRun(SchedulerTask $model, $forceRun = false)
+    static public function shouldRun(SchedulerTask $model, $forceRun = false)
     {
         $prev_run_date = $model->previousRunDate;
 
@@ -141,12 +140,36 @@ abstract class Task extends \yii\base\Component
 
         $due_seconds = (new DateTime() )->getTimestamp() - $prev_run_date->getTimestamp();
 
-        if ( $due_seconds > self::overdueThreshold )
+        if ( $due_seconds > self::$overdueThreshold )
             return $forceRun;
 
         if ( !$model->active )
             return $forceRun;
 
+        //if NOT found log - need to run
+        if ( !$model->lastLog )
+            return true;
+
+        //if last log too late
+        $due_last = ( new DateTime() )->getTimestamp() - (new DateTime( $model->started_at ) )->getTimestamp();
+        if ( $due_last > self::$overdueThreshold )
+            return $forceRun;
+
+        // if task last log is complete
+        if ( SchedulerLog::TASK_COMPLETE == $model->lastLog->status)
+            return $forceRun;
+
         return True;
     }
+
+    public function getLockName()
+    {
+        return $this->model->lockName;
+    }
+
+    public function lockTable()
+    {
+        return TRUE;
+    }
+
 }

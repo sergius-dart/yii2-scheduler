@@ -4,13 +4,14 @@ namespace webtoolsnz\scheduler\console;
 
 use webtoolsnz\scheduler\events\SchedulerEvent;
 use webtoolsnz\scheduler\models\base\SchedulerLog;
-use webtoolsnz\scheduler\models\SchedulerTask;
+use webtoolsnz\scheduler\models\base\SchedulerTask;
 use webtoolsnz\scheduler\Task;
 use webtoolsnz\scheduler\TaskRunner;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
 use yii\helpers\Console;
+use \DateTime;
 
 
 /**
@@ -84,7 +85,7 @@ class SchedulerController extends Controller
     public function actionIndex()
     {
         // Update task index
-        $this->getScheduler()->getTasks();
+        // $this->getScheduler()->getTasks();
         $models = SchedulerTask::find()->all();
 
         echo $this->ansiFormat('Scheduled Tasks', Console::UNDERLINE).PHP_EOL;
@@ -109,22 +110,31 @@ class SchedulerController extends Controller
      */
     public function actionRunAll()
     {
-        $tasks = $this->getScheduler()->getTasks();
+        // $tasks = $this->getScheduler()->getTasks();
 
-        echo 'Running Tasks:'.PHP_EOL;
-        $event = new SchedulerEvent([
-            'tasks' => $tasks,
-            'success' => true,
-        ]);
-        $this->trigger(SchedulerEvent::EVENT_BEFORE_RUN, $event);
+        $tasks = SchedulerTask::find()
+            ->with('lastLog')
+            ->andWhere([
+                'active'=>1
+            ])
+            ->all()
+            ;
+
+        // echo 'Running Tasks:'.PHP_EOL;
+        // $event = new SchedulerEvent([
+        //     'tasks' => $tasks,
+        //     'success' => true,
+        // ]);
+        // $this->trigger(SchedulerEvent::EVENT_BEFORE_RUN, $event);
         foreach ($tasks as $task) {
-            $this->runTask($task);
-            if ($task->exception) {
-                $event->success = false;
-                $event->exceptions[] = $task->exception;
-            }
+            echo "Run task lol" . $task->name;
+            $this->runTaskRecord($task);
+            // if ($task->exception) {
+            //     $event->success = false;
+            //     $event->exceptions[] = $task->exception;
+            // }
         }
-        $this->trigger(SchedulerEvent::EVENT_AFTER_RUN, $event);
+        // $this->trigger(SchedulerEvent::EVENT_AFTER_RUN, $event);
         echo PHP_EOL;
     }
 
@@ -171,5 +181,43 @@ class SchedulerController extends Controller
         } else {
             echo "Task is not due, use --force to run anyway".PHP_EOL;
         }
+    }
+    
+    private function runTaskRecord(SchedulerTask $task)
+    {
+        echo sprintf("\tRunning %s...".PHP_EOL, $task->name );
+        try{
+            $cl_name = $task->class_run;
+            if ( $cl_name::shouldRun($task,$this->force) )
+            {
+                $task_obj = new $cl_name( array_merge( $task->initArgs, ['model'=>$task] )) ;
+                if ( !$task_obj->lockTable() )
+                {
+                    echo "Don't locked table - runned from other process - exited from task -> ".$task->name;
+                    return;
+                }
+                $log_obj = new SchedulerLog([
+                    'started_at' => (new DateTime())->getTimestamp(),
+                ]);
+                $log_obj->link( 'schedulerTask', $task );
+                $log_obj->save();
+
+                ob_start();
+                $log_obj->exit_code = $task_obj->run();
+
+                $log_obj->output = ob_get_contents();
+                ob_end_clean();
+
+                $log_obj->save();
+            }
+        } catch (\ReflectionException $e) {
+            echo 'ReflectionException';
+            // var_dump($e);
+        } catch ( \Exception $e )
+        {
+            echo 'Exception';
+            var_dump($e);            
+        }
+        echo "Complete!";
     }
 }

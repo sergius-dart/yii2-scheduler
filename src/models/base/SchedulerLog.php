@@ -4,6 +4,7 @@ namespace webtoolsnz\scheduler\models\base;
 
 use Yii;
 use yii\data\ActiveDataProvider;
+use webtoolsnz\scheduler\models\base\SchedulerTask;
 
 /**
  * This is the base-model class for table "scheduler_log".
@@ -19,6 +20,9 @@ use yii\data\ActiveDataProvider;
  */
 class SchedulerLog extends \yii\db\ActiveRecord
 {
+    const TASK_COMPLETE = 1;
+    const TASK_ERROR = -1;
+    const TASK_RUNNING = 0;
     /**
      * @inheritdoc
      */
@@ -49,7 +53,7 @@ class SchedulerLog extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['scheduler_task_id', 'output'], 'required'],
+            [['scheduler_task_id'], 'required'],
             [['scheduler_task_id', 'exit_code','scheduler_log_id'], 'integer'],
             [['started_at', 'ended_at'], 'safe'],
             [['output'], 'string']
@@ -76,7 +80,7 @@ class SchedulerLog extends \yii\db\ActiveRecord
      */
     public function getSchedulerTask()
     {
-        return $this->hasOne(\webtoolsnz\scheduler\models\SchedulerTask::className(), ['id' => 'scheduler_task_id']);
+        return $this->hasOne(\webtoolsnz\scheduler\models\base\SchedulerTask::className(), ['scheduler_task_id' => 'scheduler_task_id']);
     }
 
     /**
@@ -94,7 +98,7 @@ class SchedulerLog extends \yii\db\ActiveRecord
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'sort' => ['defaultOrder'=>['id'=>SORT_DESC]],
+            'sort' => ['defaultOrder'=>['scheduler_log_id'=>SORT_DESC]],
         ]);
 
         $this->load($params, $formName);
@@ -115,6 +119,25 @@ class SchedulerLog extends \yii\db\ActiveRecord
     public function getId()
     {
         return $this->scheduler_log_id;
+    }
+
+    public function getStatus()
+    {
+        if ( $this->started_at && !$this->ended_at)
+            return self::TASK_RUNNING;
+        if ( is_null( $this->exit_code) )
+            return self::TASK_RUNNING;
+        if ( $this->exit_code >= 0 )
+            return self::TASK_COMPLETE;
+        return self::TASK_ERROR;
+    }
+
+    public function getDuration()
+    {
+        $start = new \DateTime($this->started_at);
+        $end = new \DateTime($this->ended_at);
+        $diff = $start->diff($end);
+        return $diff->format('%hh %im %Ss');
     }
 }
 

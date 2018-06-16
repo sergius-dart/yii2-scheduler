@@ -4,6 +4,8 @@ namespace webtoolsnz\scheduler\models\base;
 
 use Yii;
 use yii\data\ActiveDataProvider;
+use Cron\CronExpression;
+use webtoolsnz\scheduler\models\base\SchedulerLog;
 
 /**
  * This is the base-model class for table "scheduler_task".
@@ -21,6 +23,10 @@ use yii\data\ActiveDataProvider;
  */
 class SchedulerTask extends \yii\db\ActiveRecord
 {
+
+    const TASK_FAILED = -1;
+    const TASK_SUCCESS = 1;
+
     const STATUS_INACTIVE = 0;
     const STATUS_PENDING = 10;
     const STATUS_DUE = 20;
@@ -110,12 +116,12 @@ class SchedulerTask extends \yii\db\ActiveRecord
      */
     public function getSchedulerLogs()
     {
-        return $this->hasMany(\webtoolsnz\scheduler\models\SchedulerLog::className(), ['scheduled_task_id' => 'scheduled_task_id']);
+        return $this->hasMany( SchedulerLog::className(), ['scheduled_task_id' => 'scheduled_task_id']);
     }
 
     public function getLastLog()
     {
-        return $this->hasOne(\webtoolsnz\scheduler\models\SchedulerLog::className(), ['scheduler_log_id' => 'last_log_id']);
+        return $this->hasOne( SchedulerLog::className(), ['scheduler_log_id' => 'last_log_id']);
     }
 
     /**
@@ -180,6 +186,15 @@ class SchedulerTask extends \yii\db\ActiveRecord
     public function getLockName()
     {
         return 'TaskLock_'.$this->id;
+    }
+
+    public function getInitArgs()
+    {
+        if ( !$this->init_args )
+            return [];
+        $decoded = json_decode( $this->init_args, true);
+        //TODO check type
+        return $decoded;
     }
 }
 
