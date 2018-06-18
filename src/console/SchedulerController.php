@@ -59,6 +59,7 @@ class SchedulerController extends Controller
         $options = [];
 
         switch ($actionId) {
+            case 'show-all':
             case 'run-all':
                 $options[] = 'force';
                 break;
@@ -105,121 +106,44 @@ class SchedulerController extends Controller
         }
     }
 
+    public function actionShowAll($withInactive = false)
+    {
+
+    }
+
     /**
      * Run all due tasks
      */
     public function actionRunAll()
     {
-        // $tasks = $this->getScheduler()->getTasks();
-
         $tasks = SchedulerTask::find()
-            ->with('lastLog')
-            ->andWhere([
-                'active'=>1
-            ])
-            ->all()
-            ;
+            ->with('lastLog');
 
-        // echo 'Running Tasks:'.PHP_EOL;
-        // $event = new SchedulerEvent([
-        //     'tasks' => $tasks,
-        //     'success' => true,
-        // ]);
-        // $this->trigger(SchedulerEvent::EVENT_BEFORE_RUN, $event);
-        foreach ($tasks as $task) {
-            echo "Run task lol" . $task->name;
-            $this->runTaskRecord($task);
-            // if ($task->exception) {
-            //     $event->success = false;
-            //     $event->exceptions[] = $task->exception;
-            // }
-        }
-        // $this->trigger(SchedulerEvent::EVENT_AFTER_RUN, $event);
-        echo PHP_EOL;
-    }
+        if (!$this->force)
+            $task->andWhere(['>','active',0]);
 
-    /**
-     * Run the specified task (if due)
-     */
-    public function actionRun()
-    {
-        if (null === $this->taskName) {
-            throw new InvalidParamException('taskName must be specified');
-        }
+        $tasks = $tasks->all();
 
-        /* @var Task $task */
-        $task = $this->getScheduler()->loadTask($this->taskName);
-
-        if (!$task) {
-            throw new InvalidParamException('Invalid taskName');
-        }
+        echo 'Running Tasks:'.PHP_EOL;
         $event = new SchedulerEvent([
-            'tasks' => [$task],
-            'success' => true,
+            'tasks' => $tasks
         ]);
         $this->trigger(SchedulerEvent::EVENT_BEFORE_RUN, $event);
-        $this->runTask($task);
-        if ($task->exception) {
-            $event->success = false;
-            $event->exceptions = [$task->exception];
+        foreach ($tasks as $task) {
+            echo "Run task " . $task->id . ' with name =>'.$task->name.PHP_EOL;
+            $exception = $this->runTaskRecord($task);
+            if ( !is_null( $exception ) )
+                $event->exceptions[] = $exception;
         }
         $this->trigger(SchedulerEvent::EVENT_AFTER_RUN, $event);
-    }
-
-    /**
-     * @param Task $task
-     */
-    private function runTask(Task $task)
-    {
-        echo sprintf("\tRunning %s...", $task->getName());
-        if ($task->shouldRun($this->force)) {
-            $runner = new TaskRunner();
-            $runner->setTask($task);
-            $runner->setLog(new SchedulerLog());
-            $runner->runTask($this->force);
-            echo $runner->error ? 'error' : 'done'.PHP_EOL;
-        } else {
-            echo "Task is not due, use --force to run anyway".PHP_EOL;
-        }
     }
     
     private function runTaskRecord(SchedulerTask $task)
     {
-        echo sprintf("Check %s...".PHP_EOL, $task->name );
-        try{
-            $cl_name = $task->class_run;
-            if ( $cl_name::shouldRun($task,$this->force) )
-            {
-                echo sprintf("Prepare %s...".PHP_EOL, $task->name );
-                $task_obj = new $cl_name( array_merge( $task->initArgs, ['model'=>$task] )) ;
-                if ( !$task_obj->lockTable() )
-                {
-                    echo "Don't locked table - runned from other process - exited from task -> ".$task->name;
-                    return;
-                }
-                $log_obj = new SchedulerLog([
-                    'started_at' => (new DateTime())->format('Y-m-d H:i:s'),
-                ]);
-                var_dump($log_obj);
-                $log_obj->link( 'schedulerTask', $task );
-                // $log_obj->save();
-
-                ob_start();
-                $log_obj->exit_code = $task_obj->run();
-
-                $log_obj->output = ob_get_contents();
-                ob_end_clean();
-                $log_obj->ended_at = (new DateTime())->format('Y-m-d H:i:s');
-                $log_obj->save();
-            }
-        } catch (\ReflectionException $e) {
-            echo 'ReflectionException';
-            // var_dump($e);
-        } catch ( \Exception $e )
-        {
-            echo 'Exception';
-            var_dump($e);            
-        }
-        echo "Complete!";
+        $runner = new TaskRunner([
+            'task'=>$task,
+            'log'=>new SchedulerLog()
+        ]);
+        $runner->runTask($this->force);
     }
 }

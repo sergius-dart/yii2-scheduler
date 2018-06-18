@@ -9,8 +9,9 @@ use yii\base\Event;
 class TaskEvent extends Event
 {
     public $task;
-    public $exception;
-    public $success;
+    public $task_obj;
+    public $exception = null;
+    public $success = true;
 
     public $cancel = false;
 }

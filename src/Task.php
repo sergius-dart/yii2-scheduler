@@ -110,20 +110,26 @@ abstract class Task extends \yii\base\Component
      */
     public function start()
     {
-        $model = $this->getModel();
-        $model->started_at = date('Y-m-d H:i:s');
-        $model->save(false);}
+        if ( !self::$databaseLock )
+            return true;
+        /* @var $event TaskEvent */
+        $db = \Yii::$app->db;
+        $result = $db->createCommand("SELECT GET_LOCK(:lockname, 1) as `lock`", [':lockname' => $this->lockName])->queryScalar();
+
+        return !!$result;
+    }
 
     /**
      * Mark the task as stopped.
      */
     public function stop()
     {
-        $model = $this->getModel();
-        $model->last_run = $model->started_at;
-        $model->next_run = $this->getNextRunDate();
-        $model->started_at = null;
-        $model->save(false);
+        // release the lock
+        /* @var $event TaskEvent */
+        if ( !self::$databaseLock )
+            return true;
+        $db = \Yii::$app->db;
+        $db->createCommand("SELECT RELEASE_LOCK(:lockname) as `lock`", [':lockname' => $this->lockName])->queryScalar();
     }
 
     /**

@@ -3,8 +3,9 @@ namespace webtoolsnz\scheduler;
 
 use Yii;
 use webtoolsnz\scheduler\events\TaskEvent;
-use webtoolsnz\scheduler\models\SchedulerLog;
-use webtoolsnz\scheduler\models\SchedulerTask;
+use webtoolsnz\scheduler\models\base\SchedulerLog;
+use webtoolsnz\scheduler\models\base\SchedulerTask;
+use \DateTime;
 
 /**
  * Class TaskRunner
@@ -41,7 +42,7 @@ class TaskRunner extends \yii\base\Component
     /**
      * @param Task $task
      */
-    public function setTask(Task $task)
+    public function setTask(SchedulerTask $task)
     {
         $this->_task = $task;
     }
@@ -76,36 +77,47 @@ class TaskRunner extends \yii\base\Component
     public function runTask($forceRun = false)
     {
         $task = $this->getTask();
+        $log_obj = $this->log;
 
-        if ($task->shouldRun($forceRun)) {
-            $event = new TaskEvent([
-                'task' => $task,
-                'success' => true,
-            ]);
-            $this->trigger(Task::EVENT_BEFORE_RUN, $event);
-            if (!$event->cancel) {
-                $task->start();
-                ob_start();
-                try {
-                    $this->running = true;
-                    $this->shutdownHandler();
-                    $task->run();
-                    $this->running = false;
-                    $output = ob_get_contents();
-                    ob_end_clean();
-                    $this->log($output);
-                    $task->stop();
-                } catch (\Exception $e) {
-                    $this->running = false;
-                    $task->exception = $e;
-                    $event->exception = $e;
-                    $event->success = false;
-                    $this->handleError($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
-                }
-                $this->trigger(Task::EVENT_AFTER_RUN, $event);
+        $raised_exception = null;
+        $task_obj = null;
+
+        ob_start();
+        try{
+            $cl_name = $task->class_run;
+
+            if ( $cl_name::shouldRun($task,$forceRun) )
+            {
+                //TODO - if error on create object - NOT SAVED LOG!
+                $task_obj = new $cl_name( array_merge( $task->initArgs, ['model'=>$task] )) ;
+                if (!$task_obj->start()) 
+                    //cancel ( locked table?)
+                    return;
+
+                $log_obj->exit_code = $task_obj->run();
             }
+        } catch (\Throwable $e) {
+            $log_obj->exit_code = -1; //set exit code to save log
+            if ( !( $e instanceof \Exception ) )
+                $log_obj->exit_code = -2;//set exit code to save log
+            $raised_exception = $e;
+        } finally {
+            if ( $raised_exception )
+                $this->handleError($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+
+            if ( !is_null($log_obj->exit_code) ) //if call run - need ob_end_clean and run trigger
+            {
+                $log_obj->output = ob_get_contents();
+                ob_end_clean();
+                
+                if ( $task_obj)
+                    $task_obj->stop();
+
+                $log_obj->ended_at = (new DateTime())->format('Y-m-d H:i:s');
+                $log_obj->link( 'schedulerTask', $task );
+            }
+            return $raised_exception;
         }
-        $task->getModel()->save();
     }
 
     /**
@@ -138,28 +150,5 @@ class TaskRunner extends \yii\base\Component
         if (null !== ($tx = \Yii::$app->db->getTransaction())) {
             $tx->rollBack();
         }
-
-        $output = ob_get_contents();
-        ob_end_clean();
-
-        $this->error = true;
-        $this->log($output);
-        $this->getTask()->getModel()->status_id = SchedulerTask::STATUS_ERROR;
-        $this->getTask()->stop();
-    }
-
-    /**
-     * @param string $output
-     */
-    public function log($output)
-    {
-        $model = $this->getTask()->getModel();
-        $log = $this->getLog();
-        $log->started_at = $model->started_at;
-        $log->ended_at = date('Y-m-d H:i:s');
-        $log->error = $this->error ? 1 : 0;
-        $log->output = $output;
-        $log->scheduler_task_id = $model->id;
-        $log->save(false);
     }
 }

@@ -12,6 +12,10 @@ class SchedulerEvent extends Event
     const EVENT_AFTER_RUN = 'SchedulerAfterRun';
 
     public $tasks;
-    public $exceptions;
-    public $success;
+    public $exceptions = [];
+
+    public function getSuccess()
+    {
+        return count($this->exceptions) == 0;
+    }
 }
