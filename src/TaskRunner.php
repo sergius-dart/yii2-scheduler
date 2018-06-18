@@ -78,6 +78,7 @@ class TaskRunner extends \yii\base\Component
     {
         $task = $this->getTask();
         $log_obj = $this->log;
+        $log_obj->started_at =  (new DateTime())->format('Y-m-d H:i:s');
 
         $raised_exception = null;
         $task_obj = null;
@@ -88,7 +89,6 @@ class TaskRunner extends \yii\base\Component
 
             if ( $cl_name::shouldRun($task,$forceRun) )
             {
-                //TODO - if error on create object - NOT SAVED LOG!
                 $task_obj = new $cl_name( array_merge( $task->initArgs, ['model'=>$task] )) ;
                 if (!$task_obj->start()) 
                     //cancel ( locked table?)
@@ -105,10 +105,12 @@ class TaskRunner extends \yii\base\Component
             if ( $raised_exception )
                 $this->handleError($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
 
+            $output = ob_get_contents(); //get output ( mb not save - but ob_start is called - need ob_end_clean )
+            ob_end_clean();
+
             if ( !is_null($log_obj->exit_code) ) //if call run - need ob_end_clean and run trigger
             {
-                $log_obj->output = ob_get_contents();
-                ob_end_clean();
+                $log_obj->output = $output;
                 
                 if ( $task_obj)
                     $task_obj->stop();
