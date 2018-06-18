@@ -41,7 +41,6 @@ $this->params['breadcrumbs'][] = $this->title;
                 'name',
                 'description',
                 'cron',
-                'status'
             ],
         ]); ?>
         <?php \yii\widgets\Pjax::end(); ?>

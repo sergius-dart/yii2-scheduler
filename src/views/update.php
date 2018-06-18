@@ -71,13 +71,10 @@ $this->params['breadcrumbs'][] = $model->__toString();
                 ],
                 'ended_at:datetime',
                 [
-                    'label' => 'Duration',
-                    'value' => function ($m) {
-                        return $m->getDuration();
-                    }
+                    'attribute' => 'duration',
                 ],
                 [
-                    'label' => 'Result',
+                    'attribute' => 'status',
                     'format' => 'raw',
                     'contentOptions' => ['class' => 'text-center'],
                     'value' => function ($model) {

@@ -66,12 +66,14 @@ class SchedulerLog extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'scheduler_log_id' => Yii::t('app', 'scheduler_log_id'),
-            'scheduler_task_id' => Yii::t('app', 'Scheduler Task ID'),
-            'started_at' => Yii::t('app', 'Started At'),
-            'ended_at' => Yii::t('app', 'Ended At'),
-            'output' => Yii::t('app', 'Output'),
-            'exit_code' => Yii::t('app', 'Error'),
+            'scheduler_log_id' => Yii::t('app', 'SchedulerLog::scheduler_log_id'),
+            'scheduler_task_id' => Yii::t('app', 'SchedulerLog::scheduler_task_id'),
+            'started_at' => Yii::t('app', 'SchedulerLog::started_at'),
+            'ended_at' => Yii::t('app', 'SchedulerLog::ended_at'),
+            'output' => Yii::t('app', 'SchedulerLog::output'),
+            'exit_code' => Yii::t('app', 'SchedulerLog::exit_code'),
+            'duration' => Yii::t('app', 'SchedulerLog::duration'),
+            'status' => Yii::t('app', 'SchedulerLog::status'),
         ];
     }
 

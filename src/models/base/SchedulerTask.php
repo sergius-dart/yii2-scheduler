@@ -100,14 +100,20 @@ class SchedulerTask extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'scheduler_task_id' => Yii::t('app', 'scheduler_task_id'),
-            'name' => Yii::t('app', 'Name'),
-            'description' => Yii::t('app', 'Description'),
-            'cron'=>Yii::t('app','cron expression'),
-            'class_run'=>Yii::t('app','class to run'),
-            'init_args' => Yii::t('app', 'Initial arguments'),
-            'last_log_id'=>Yii::t('app','Last log'),
-            'active' => Yii::t('app', 'Active'),
+            'scheduler_task_id' => Yii::t('app', 'SchedulerTask::scheduler_task_id'),
+            'name' => Yii::t('app', 'SchedulerTask::name'),
+            'description' => Yii::t('app', 'SchedulerTask::description'),
+            'cron'=>Yii::t('app','SchedulerTask::cron_expression'),
+            'class_run'=>Yii::t('app','SchedulerTask::class_run'),
+            'init_args' => Yii::t('app', 'SchedulerTask::init_args'),
+            'last_log_id'=>Yii::t('app','SchedulerTask::last_log_id'),
+            'active' => Yii::t('app', 'SchedulerTask::active'),
+
+            'status' => Yii::t('app', 'SchedulerTask::status'),
+            'nextRunDate' => Yii::t('app', 'SchedulerTask::nextRunDate'),
+            'previousRunDate' => Yii::t('app', 'SchedulerTask::previousRunDate'),
+            'lockName' => Yii::t('app', 'SchedulerTask::lockName'),
+            'initArgs' => Yii::t('app', 'SchedulerTask::initArgs'),
         ];
     }
 
