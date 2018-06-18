@@ -120,7 +120,7 @@ class SchedulerController extends Controller
             ->with('lastLog');
 
         if (!$this->force)
-            $task->andWhere(['>','active',0]);
+            $tasks->andWhere(['>','active',0]);
 
         $tasks = $tasks->all();
 

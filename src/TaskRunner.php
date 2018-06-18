@@ -110,6 +110,7 @@ class TaskRunner extends \yii\base\Component
 
             if ( !is_null($log_obj->exit_code) ) //if call run - need ob_end_clean and run trigger
             {
+                echo ($log_obj->exit_code > 0) ? 'success' : 'failed';
                 $log_obj->output = $output;
                 
                 if ( $task_obj)
@@ -117,7 +118,8 @@ class TaskRunner extends \yii\base\Component
 
                 $log_obj->ended_at = (new DateTime())->format('Y-m-d H:i:s');
                 $log_obj->link( 'schedulerTask', $task );
-            }
+            } else echo 'skiped';
+            echo PHP_EOL;
             return $raised_exception;
         }
     }
