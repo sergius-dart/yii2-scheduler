@@ -15,7 +15,7 @@ use yii\grid\GridView;
 
 
 $this->title = $model->__toString();
-$this->params['breadcrumbs'][] = ['label' => 'hello', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app','scheduler::title'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->__toString();
 ?>
 <div class="task-update">
@@ -56,11 +56,11 @@ $this->params['breadcrumbs'][] = $model->__toString();
         <?= GridView::widget([
             'layout' => '{summary}{pager}{items}{pager}',
             'dataProvider' => $logDataProvider,
-            'pager' => [
-                'class' => yii\widgets\LinkPager::className(),
-                'firstPageLabel' => Yii::t('app', 'First'),
-                'lastPageLabel' => Yii::t('app', 'Last'),
-            ],
+            // 'pager' => [
+            //     'class' => yii\widgets\LinkPager::className(),
+            //     'firstPageLabel' => Yii::t('app', 'First'),
+            //     'lastPageLabel' => Yii::t('app', 'Last'),
+            // ],
             'columns' => [
                 [
                     'attribute' => 'started_at',
@@ -94,12 +94,12 @@ $this->params['breadcrumbs'][] = $model->__toString();
         'id' => 'customer',
         'items' => [
             'overview' => [
-                'label'   => Yii::t('app', 'Overview'),
+                'label'   => Yii::t('app', 'scheduler::overview'),
                 'content' => $this->blocks['main'],
                 'active'  => true,
             ],
             'logs' => [
-                'label' => 'Logs',
+                'label' => Yii::t('app','scheduler::logs'),
                 'content' => $this->blocks['logs'],
             ],
         ]

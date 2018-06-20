@@ -11,7 +11,7 @@ use yii\helpers\Url;
 use yii\grid\GridView;
 
 
-$this->title = 'hello';
+$this->title = Yii::t('app','scheduler::title');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -24,15 +24,15 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= GridView::widget([
             'layout' => '{summary}{pager}{items}{pager}',
             'dataProvider' => $dataProvider,
-            'pager' => [
-                'class' => yii\widgets\LinkPager::className(),
-                'firstPageLabel' => Yii::t('app', 'First'),
-                'lastPageLabel' => Yii::t('app', 'Last'),
-            ],
+            // 'pager' => [
+            //     'class' => yii\widgets\LinkPager::className(),
+            //     'firstPageLabel' => Yii::t('app', 'scheduler::first'),
+            //     'lastPageLabel' => Yii::t('app', 'scheduler::last'),
+            // ],
             'columns' => [
                 [
                     'attribute' => 'name',
-                    'format' => 'raw',
+                    'format' => 'html',
                     'value' => function ($t) {
                         return Html::a($t->name, ['update', 'id' => $t->id]);
                     }

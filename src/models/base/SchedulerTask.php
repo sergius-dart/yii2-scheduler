@@ -88,7 +88,8 @@ class SchedulerTask extends \yii\db\ActiveRecord
             [['description', 'class_run','init_args'], 'string'],
             [['scheduler_task_id','active'], 'integer'],
             [['last_log_id', 'last_run'], 'safe'],
-            [['name', 'cron'], 'string', 'max' => 45],
+            [ ['name'],'string','max'=>256 ],
+            [['cron'], 'string', 'max' => 45],
             [ 'active', 'default', 'value'=>1 , 'on'=>self::SCENARIO_DEFAULT],
             [ 'description', 'default', 'value'=>'', 'on'=>self::SCENARIO_DEFAULT]
         ];

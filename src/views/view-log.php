@@ -11,7 +11,7 @@ use webtoolsnz\scheduler\models\SchedulerTask;
 
 
 $this->title = $model->__toString();
-$this->params['breadcrumbs'][] = ['label' => 'hello', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app','scheduler::title'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->schedulerTask->__toString(), 'url' => ['update', 'id' => $model->scheduler_task_id]];
 $this->params['breadcrumbs'][] = $model->__toString();
 ?>
@@ -31,10 +31,10 @@ $this->params['breadcrumbs'][] = $model->__toString();
             <dt><?= $model->getAttributeLabel('ended_at') ?></dt>
             <dd><?= Yii::$app->formatter->asDatetime($model->ended_at) ?></dd>
 
-            <dt>Duration</dt>
-            <dd><?= $model->getDuration() ?></dd>
+            <dt><?= $model->getAttributeLabel('duration') ?></dt>
+            <dd><?= $model->duration ?></dd>
 
-            <dt>Result</dt>
+            <dt><?= $model->getAttributeLabel('status') ?></dt>
             <dd>
                 <?php if (is_null($model->exit_code) || $model->exit_code < 0 ): ?>
                     <span class="text-danger glyphicon glyphicon-remove-circle"></span> Error
@@ -44,7 +44,7 @@ $this->params['breadcrumbs'][] = $model->__toString();
             </dd>
         </dl>
 
-        <h3>Output</h3>
+        <h3> <?= $model->getAttributeLabel('output') ?> </h3>
         <textarea class="form-control" rows="7"><?= $model->output ?></textarea>
     </div>
 </div>

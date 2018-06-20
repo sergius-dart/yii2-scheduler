@@ -19,15 +19,15 @@ class m180615_142400_Scheduler extends Migration
             'ended_at'=> $this->timestamp(),
             //TODO stdout/stderr?
             'output'=> $this->text(),
-            'exit_code'=> $this->integer()->comment('Exit code of "run" function cast to integer!'),
+            'exit_code'=> $this->integer()
+                ->comment('Exit code of "run" function cast to integer!'),
         ]);
 
-        // $this->createIndex('id_UNIQUE', 'scheduler_log','scheduler_log_id',1);
         $this->createIndex('fk_table1_scheduler_task_idx', 'scheduler_log','scheduler_task_id',0);
 
         $this->createTable('scheduler_task', [
             'scheduler_task_id'=> $this->primaryKey(),
-            'name'=>$this->string(45)->notNull()
+            'name'=>$this->string(256)->notNull()
                 ->comment('Display userfriendly name'),
             'description'=> $this->text()->notNull()
                 ->comment('Too more information for current task'),
@@ -43,7 +43,6 @@ class m180615_142400_Scheduler extends Migration
                 ->comment('Need run (ignore from --run-disable)'),
         ]);
 
-        // $this->createIndex('id_UNIQUE', 'scheduler_task','id',1);
         $this->addForeignKey('fk_scheduler_log_scheduler_task_id', 'scheduler_log', 'scheduler_task_id', 'scheduler_task', 'scheduler_task_id','CASCADE','CASCADE');
         $this->addForeignKey('fk_scheduler_task_scheduler_last_log', 'scheduler_task', 'last_log_id', 'scheduler_log', 'scheduler_log_id','SET NULL','CASCADE');
     }
