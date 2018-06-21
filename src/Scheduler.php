@@ -11,38 +11,58 @@ use yii\helpers\ArrayHelper;
  * Class Module
  * @package webtoolsnz\scheduler
  */
-class Module extends \yii\base\Module implements BootstrapInterface
+class Scheduler extends \yii\base\Module implements BootstrapInterface
 {
     /**
-     * Path where task files can be found in the application structure.
+     * Path where task files can be found in the schedulerlication structure.
      * @var string
      */
-    public $taskPath = '@app/tasks';
+    public $taskPath = '@scheduler/tasks';
 
     /**
      * Namespace that tasks use.
      * @var string
      */
-    public $taskNameSpace = 'app\tasks';
+    public $taskNameSpace = 'scheduler\tasks';
+
+    public function init()
+    {
+        parent::init();
+        $this->registerTranslations();
+    }
 
     /**
      * Bootstrap the console controllers.
-     * @param \yii\base\Application $app
+     * @param \yii\base\Application $scheduler
      */
-    public function bootstrap($app)
+    public function bootstrap($scheduler)
     {
         Yii::setAlias('@scheduler', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src');
 
-        if ($app instanceof \yii\console\Application && !isset($app->controllerMap[$this->id])) {
-            $app->controllerMap[$this->id] = [
+        if ($scheduler instanceof \yii\console\Application && !isset($scheduler->controllerMap[$this->id])) {
+            $scheduler->controllerMap[$this->id] = [
                 'class' => 'webtoolsnz\scheduler\console\SchedulerController',
             ];
         }
     }
 
+    public function registerTranslations()
+    {
+        Yii::$app->i18n->translations['scheduler'] = [
+            'class'          => 'yii\i18n\PhpMessageSource',
+            'sourceLanguage' => 'en-US',
+            'basePath'       => 'webtoolsnz\scheduler\messages'
+        ];
+    }
+
+    public static function t($category, $message, $params = [], $language = null)
+    {
+        return Yii::t('modules/users/' . $category, $message, $params, $language);
+    }
+
     /**
      * Scans the taskPath for any task files, if any are found it attempts to load them,
-     * creates a new instance of each class and appends it to an array, which it returns.
+     * creates a new instance of each class and schedulerends it to an array, which it returns.
      *
      * @return Task[]
      * @throws \yii\base\ErrorException

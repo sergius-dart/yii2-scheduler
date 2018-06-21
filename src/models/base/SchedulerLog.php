@@ -36,7 +36,7 @@ class SchedulerLog extends \yii\db\ActiveRecord
      */
     public static function label($n = 1)
     {
-        return Yii::t('app', '{n, plural, =1{Scheduler Log} other{Scheduler Logs}}', ['n' => $n]);
+        return Yii::t('scheduler', '{n, plural, =1{Scheduler Log} other{Scheduler Logs}}', ['n' => $n]);
     }
 
     /**
@@ -66,14 +66,14 @@ class SchedulerLog extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'scheduler_log_id' => Yii::t('app', 'SchedulerLog::scheduler_log_id'),
-            'scheduler_task_id' => Yii::t('app', 'SchedulerLog::scheduler_task_id'),
-            'started_at' => Yii::t('app', 'SchedulerLog::started_at'),
-            'ended_at' => Yii::t('app', 'SchedulerLog::ended_at'),
-            'output' => Yii::t('app', 'SchedulerLog::output'),
-            'exit_code' => Yii::t('app', 'SchedulerLog::exit_code'),
-            'duration' => Yii::t('app', 'SchedulerLog::duration'),
-            'status' => Yii::t('app', 'SchedulerLog::status'),
+            'scheduler_log_id' => Yii::t('scheduler', 'SchedulerLog::scheduler_log_id'),
+            'scheduler_task_id' => Yii::t('scheduler', 'SchedulerLog::scheduler_task_id'),
+            'started_at' => Yii::t('scheduler', 'SchedulerLog::started_at'),
+            'ended_at' => Yii::t('scheduler', 'SchedulerLog::ended_at'),
+            'output' => Yii::t('scheduler', 'SchedulerLog::output'),
+            'exit_code' => Yii::t('scheduler', 'SchedulerLog::exit_code'),
+            'duration' => Yii::t('scheduler', 'SchedulerLog::duration'),
+            'status' => Yii::t('scheduler', 'SchedulerLog::status'),
         ];
     }
 

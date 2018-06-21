@@ -38,13 +38,12 @@ class m180615_142400_Scheduler extends Migration
             'init_args'=>$this->text()->notNull()
                 ->comment('JSON object passed to construct class_run'),
             'last_log_id'=> $this->integer()
-                ->comment('Information of last running'),
+                ->comment('Information of last running'), //TODO add foreign key or triggers
             'active'=>  $this->boolean()->notNull()->defaultValue(False)
                 ->comment('Need run (ignore from --run-disable)'),
         ]);
 
         $this->addForeignKey('fk_scheduler_log_scheduler_task_id', 'scheduler_log', 'scheduler_task_id', 'scheduler_task', 'scheduler_task_id','CASCADE','CASCADE');
-        $this->addForeignKey('fk_scheduler_task_scheduler_last_log', 'scheduler_task', 'last_log_id', 'scheduler_log', 'scheduler_log_id','SET NULL','CASCADE');
     }
 
     /**

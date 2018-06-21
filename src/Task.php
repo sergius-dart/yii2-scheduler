@@ -36,7 +36,20 @@ abstract class Task extends \yii\base\Component
      *
      * @var String
      */
-    static public $description;
+    static public function name($initArgs)
+    {
+        
+    }
+
+    /**
+     * Brief description of the task.
+     *
+     * @var String
+     */
+    static public function description($initArgs)
+    {
+        
+    }
 
     /**
      * How many seconds after due date to wait until the task becomes overdue and is re-run.

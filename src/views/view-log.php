@@ -11,7 +11,7 @@ use webtoolsnz\scheduler\models\SchedulerTask;
 
 
 $this->title = $model->__toString();
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app','scheduler::title'), 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('scheduler','scheduler::title'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->schedulerTask->__toString(), 'url' => ['update', 'id' => $model->scheduler_task_id]];
 $this->params['breadcrumbs'][] = $model->__toString();
 ?>
@@ -37,9 +37,9 @@ $this->params['breadcrumbs'][] = $model->__toString();
             <dt><?= $model->getAttributeLabel('status') ?></dt>
             <dd>
                 <?php if (is_null($model->exit_code) || $model->exit_code < 0 ): ?>
-                    <span class="text-danger glyphicon glyphicon-remove-circle"></span> Error
+                    <span class="text-danger glyphicon glyphicon-remove-circle"></span> <?= Yii::t('scheduler','scheduler::log::view::error') ?>
                 <?php else: ?>
-                    <span class="text-success glyphicon glyphicon-ok-circle"></span> Success
+                    <span class="text-success glyphicon glyphicon-ok-circle"></span> <?= Yii::t('scheduler','scheduler::log::view::success') ?>
                 <?php endif ?>
             </dd>
         </dl>

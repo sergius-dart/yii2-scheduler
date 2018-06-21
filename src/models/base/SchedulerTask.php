@@ -27,23 +27,23 @@ class SchedulerTask extends \yii\db\ActiveRecord
     const TASK_FAILED = -1;
     const TASK_SUCCESS = 1;
 
-    const STATUS_INACTIVE = 0;
-    const STATUS_PENDING = 10;
-    const STATUS_DUE = 20;
-    const STATUS_RUNNING = 30;
-    const STATUS_OVERDUE = 40;
-    const STATUS_ERROR = 50;
-    /**
-     * @var array
-     */
-    private static $_statuses = [
-        self::STATUS_INACTIVE => 'Inactive',
-        self::STATUS_PENDING => 'Pending',
-        self::STATUS_DUE => 'Due',
-        self::STATUS_RUNNING => 'Running',
-        self::STATUS_OVERDUE => 'Overdue',
-        self::STATUS_ERROR => 'Error',
-    ];
+    // const STATUS_INACTIVE = 0;
+    // const STATUS_PENDING = 10;
+    // const STATUS_DUE = 20;
+    // const STATUS_RUNNING = 30;
+    // const STATUS_OVERDUE = 40;
+    // const STATUS_ERROR = 50;
+    // /**
+    //  * @var array
+    //  */
+    // private static $_statuses = [
+    //     self::STATUS_INACTIVE => 'Inactive',
+    //     self::STATUS_PENDING => 'Pending',
+    //     self::STATUS_DUE => 'Due',
+    //     self::STATUS_RUNNING => 'Running',
+    //     self::STATUS_OVERDUE => 'Overdue',
+    //     self::STATUS_ERROR => 'Error',
+    // ];
 
     // const SCENARIO_CREATE = 'create'; //default scenario
     const SCENARIO_SEARCH = 'search';
@@ -65,14 +65,6 @@ class SchedulerTask extends \yii\db\ActiveRecord
     /**
      *
      */
-    public static function label($n = 1)
-    {
-        return Yii::t('app', '{n, plural, =1{Scheduler Task} other{Scheduler Tasks}}', ['n' => $n]);
-    }
-
-    /**
-     *
-     */
     public function __toString()
     {
         return (string) $this->id;
@@ -85,13 +77,13 @@ class SchedulerTask extends \yii\db\ActiveRecord
     {
         return [
             [['name', 'cron'] , 'required', 'on'=>self::SCENARIO_DEFAULT],
+            [ 'active', 'default', 'value'=>1 , 'on'=>self::SCENARIO_DEFAULT],
+            [ 'description', 'default', 'value'=>'', 'on'=>self::SCENARIO_DEFAULT],
             [['description', 'class_run','init_args'], 'string'],
             [['scheduler_task_id','active'], 'integer'],
             [['last_log_id', 'last_run'], 'safe'],
             [ ['name'],'string','max'=>256 ],
             [['cron'], 'string', 'max' => 45],
-            [ 'active', 'default', 'value'=>1 , 'on'=>self::SCENARIO_DEFAULT],
-            [ 'description', 'default', 'value'=>'', 'on'=>self::SCENARIO_DEFAULT]
         ];
     }
 
@@ -101,20 +93,20 @@ class SchedulerTask extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'scheduler_task_id' => Yii::t('app', 'SchedulerTask::scheduler_task_id'),
-            'name' => Yii::t('app', 'SchedulerTask::name'),
-            'description' => Yii::t('app', 'SchedulerTask::description'),
-            'cron'=>Yii::t('app','SchedulerTask::cron_expression'),
-            'class_run'=>Yii::t('app','SchedulerTask::class_run'),
-            'init_args' => Yii::t('app', 'SchedulerTask::init_args'),
-            'last_log_id'=>Yii::t('app','SchedulerTask::last_log_id'),
-            'active' => Yii::t('app', 'SchedulerTask::active'),
+            'scheduler_task_id' => Yii::t('scheduler', 'SchedulerTask::scheduler_task_id'),
+            'name' => Yii::t('scheduler', 'SchedulerTask::name'),
+            'description' => Yii::t('scheduler', 'SchedulerTask::description'),
+            'cron'=>Yii::t('scheduler','SchedulerTask::cron_expression'),
+            'class_run'=>Yii::t('scheduler','SchedulerTask::class_run'),
+            'init_args' => Yii::t('scheduler', 'SchedulerTask::init_args'),
+            'last_log_id'=>Yii::t('scheduler','SchedulerTask::last_log_id'),
+            'active' => Yii::t('scheduler', 'SchedulerTask::active'),
 
-            'status' => Yii::t('app', 'SchedulerTask::status'),
-            'nextRunDate' => Yii::t('app', 'SchedulerTask::nextRunDate'),
-            'previousRunDate' => Yii::t('app', 'SchedulerTask::previousRunDate'),
-            'lockName' => Yii::t('app', 'SchedulerTask::lockName'),
-            'initArgs' => Yii::t('app', 'SchedulerTask::initArgs'),
+            'status' => Yii::t('scheduler', 'SchedulerTask::status'),
+            'nextRunDate' => Yii::t('scheduler', 'SchedulerTask::nextRunDate'),
+            'previousRunDate' => Yii::t('scheduler', 'SchedulerTask::previousRunDate'),
+            'lockName' => Yii::t('scheduler', 'SchedulerTask::lockName'),
+            'initArgs' => Yii::t('scheduler', 'SchedulerTask::initArgs'),
         ];
     }
 

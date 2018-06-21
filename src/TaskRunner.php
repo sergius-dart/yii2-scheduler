@@ -118,6 +118,7 @@ class TaskRunner extends \yii\base\Component
 
                 $log_obj->ended_at = (new DateTime())->format('Y-m-d H:i:s');
                 $log_obj->link( 'schedulerTask', $task );
+                $task->link( 'lastLog', $log_obj );
             } else echo 'skiped';
             echo PHP_EOL;
             return $raised_exception;

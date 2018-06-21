@@ -15,7 +15,7 @@ use yii\grid\GridView;
 
 
 $this->title = $model->__toString();
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app','scheduler::title'), 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('scheduler','scheduler::title'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->__toString();
 ?>
 <div class="task-update">
@@ -34,13 +34,13 @@ $this->params['breadcrumbs'][] = $model->__toString();
     <?= $form->field($model, 'cron', ['inputOptions' => ['disabled' => 'disabled']]) ?>
     
     <?= $form->field($model, 'active')->widget(RadioButtonGroup::className(), [
-        'items' => [1 => 'Yes', 0 => 'No'],
+        'items' => [1 => Yii::t( 'scheduler', 'scheduler::update::active::yes'), 0 => Yii::t( 'scheduler', 'scheduler::update::active::no')],
         'itemOptions' => [
             'buttons' => [0 => ['activeState' => 'btn active btn-danger']]
         ]
     ]); ?>
 
-    <?= Html::submitButton('<span class="glyphicon glyphicon-check"></span> ' . ($model->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Save')), [
+    <?= Html::submitButton('<span class="glyphicon glyphicon-check"></span> ' . ($model->isNewRecord ? Yii::t('scheduler', 'scheduler::update::create') : Yii::t('scheduler', 'scheduler::update::save')), [
         'id' => 'save-' . $model->formName(),
         'class' => 'btn btn-primary'
     ]); ?>
@@ -58,8 +58,8 @@ $this->params['breadcrumbs'][] = $model->__toString();
             'dataProvider' => $logDataProvider,
             // 'pager' => [
             //     'class' => yii\widgets\LinkPager::className(),
-            //     'firstPageLabel' => Yii::t('app', 'First'),
-            //     'lastPageLabel' => Yii::t('app', 'Last'),
+            //     'firstPageLabel' => Yii::t('scheduler', 'First'),
+            //     'lastPageLabel' => Yii::t('scheduler', 'Last'),
             // ],
             'columns' => [
                 [
@@ -94,12 +94,12 @@ $this->params['breadcrumbs'][] = $model->__toString();
         'id' => 'customer',
         'items' => [
             'overview' => [
-                'label'   => Yii::t('app', 'scheduler::overview'),
+                'label'   => Yii::t('scheduler', 'scheduler::overview'),
                 'content' => $this->blocks['main'],
                 'active'  => true,
             ],
             'logs' => [
-                'label' => Yii::t('app','scheduler::logs'),
+                'label' => Yii::t('scheduler','scheduler::logs'),
                 'content' => $this->blocks['logs'],
             ],
         ]
