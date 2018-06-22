@@ -38,17 +38,17 @@ class SchedulerController extends Controller
      */
     public $taskName;
 
-    /**
-     * Colour map for SchedulerTask status ids
-     * @var array
-     */
-    private $_statusColors = [
-        SchedulerTask::STATUS_PENDING => Console::FG_BLUE,
-        SchedulerTask::STATUS_DUE => Console::FG_YELLOW,
-        SchedulerTask::STATUS_OVERDUE => Console::FG_RED,
-        SchedulerTask::STATUS_RUNNING => Console::FG_GREEN,
-        SchedulerTask::STATUS_ERROR => Console::FG_RED,
-    ];
+    // /**
+    //  * Colour map for SchedulerTask status ids
+    //  * @var array
+    //  */
+    // private $_statusColors = [
+    //     SchedulerTask::STATUS_PENDING => Console::FG_BLUE,
+    //     SchedulerTask::STATUS_DUE => Console::FG_YELLOW,
+    //     SchedulerTask::STATUS_OVERDUE => Console::FG_RED,
+    //     SchedulerTask::STATUS_RUNNING => Console::FG_GREEN,
+    //     SchedulerTask::STATUS_ERROR => Console::FG_RED,
+    // ];
 
     /**
      * @param string $actionId

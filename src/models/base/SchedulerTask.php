@@ -107,6 +107,7 @@ class SchedulerTask extends \yii\db\ActiveRecord
             'previousRunDate' => Yii::t('scheduler', 'SchedulerTask::previousRunDate'),
             'lockName' => Yii::t('scheduler', 'SchedulerTask::lockName'),
             'initArgs' => Yii::t('scheduler', 'SchedulerTask::initArgs'),
+            'fullDescription'=>Yii::t('scheduler', 'SchedulerTask::fullDescription'),
         ];
     }
 
@@ -194,6 +195,21 @@ class SchedulerTask extends \yii\db\ActiveRecord
         $decoded = json_decode( $this->init_args, true);
         //TODO check type
         return $decoded;
+    }
+
+    public function getFullDescription()
+    {
+        $desc = $this->description;
+        try {
+            $cl = $this->class_run;
+            $instance = new $cl($this->initArgs);
+            if ( isset( $instance->description ) )
+                $desc = $instance->description;
+        } catch (\Exception $e )
+        {
+            Yii::error($e);
+        }
+        return $desc;
     }
 }
 

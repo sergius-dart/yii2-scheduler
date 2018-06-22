@@ -64,28 +64,28 @@ abstract class Task extends \yii\base\Component
      */
     private $_model;
 
-    public function init()
-    {
-        parent::init();
+    // public function init()
+    // {
+    //     parent::init();
 
-        $lockName = $this->lockName;
-        \yii\base\Event::on(self::className(), self::EVENT_BEFORE_RUN, function ($event) use ($lockName) {
-            /* @var $event TaskEvent */
-            $db = \Yii::$app->db;
-            $result = $db->createCommand("GET_LOCK(:lockname, 1)", [':lockname' => $lockName])->queryScalar();
+    //     $lockName = $this->lockName;
+    //     \yii\base\Event::on(self::className(), self::EVENT_BEFORE_RUN, function ($event) use ($lockName) {
+    //         /* @var $event TaskEvent */
+    //         $db = \Yii::$app->db;
+    //         $result = $db->createCommand("GET_LOCK(:lockname, 1)", [':lockname' => $lockName])->queryScalar();
 
-            if (!$result) {
-                // we didn't get the lock which means the task is still running
-                $event->cancel = true;
-            }
-        });
-        \yii\base\Event::on(self::className(), self::EVENT_AFTER_RUN, function ($event) use ($lockName) {
-            // release the lock
-            /* @var $event TaskEvent */
-            $db = \Yii::$app->db;
-            $db->createCommand("RELEASE_LOCK(:lockname, 1)", [':lockname' => $lockName])->queryScalar();
-        });
-    }
+    //         if (!$result) {
+    //             // we didn't get the lock which means the task is still running
+    //             $event->cancel = true;
+    //         }
+    //     });
+    //     \yii\base\Event::on(self::className(), self::EVENT_AFTER_RUN, function ($event) use ($lockName) {
+    //         // release the lock
+    //         /* @var $event TaskEvent */
+    //         $db = \Yii::$app->db;
+    //         $db->createCommand("RELEASE_LOCK(:lockname, 1)", [':lockname' => $lockName])->queryScalar();
+    //     });
+    // }
 
     /**
      * @param SchedulerTask $model

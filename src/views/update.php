@@ -12,6 +12,7 @@ use yii\bootstrap\Tabs;
 use yii\bootstrap\ActiveForm;
 use webtoolsnz\widgets\RadioButtonGroup;
 use yii\grid\GridView;
+use yii\helpers\Url;
 
 
 $this->title = $model->__toString();
@@ -30,7 +31,7 @@ $this->params['breadcrumbs'][] = $model->__toString();
     ]); ?>
 
     <?= $form->field($model, 'name', ['inputOptions' => ['disabled' => 'disabled']]) ?>
-    <?= $form->field($model, 'description', ['inputOptions' => ['disabled' => 'disabled']]) ?>
+    <?= $form->field($model, 'fullDescription', ['inputOptions' => ['disabled' => 'disabled']]) ?>
     <?= $form->field($model, 'cron', ['inputOptions' => ['disabled' => 'disabled']]) ?>
     
     <?= $form->field($model, 'active')->widget(RadioButtonGroup::className(), [
@@ -81,6 +82,26 @@ $this->params['breadcrumbs'][] = $model->__toString();
                         return Html::tag('span', '', [
                             'class' => (is_null($model->exit_code) || $model->exit_code < 0 )  ? 'text-danger glyphicon glyphicon-remove-circle' : 'text-success glyphicon glyphicon-ok-circle'
                         ]);
+                    }
+                ],
+                [
+                    'class' => 'yii\grid\ActionColumn',
+                    'template'=>'{delete}',
+                    'urlCreator' => function ($action, $model, $key, $index) {
+                        switch ($action) {
+                        case 'delete' :
+                            return Url::to( [ 'delete-log', 'id'=>$model->id ] );
+                        }
+            
+                        // if ($action === 'update') {
+                        //     $url ='index.php?r=client-login/lead-update&id='.$model->id;
+                        //     return $url;
+                        // }
+                        // if ($action === 'delete') {
+                        //     $url ='index.php?r=client-login/lead-delete&id='.$model->id;
+                        //     return $url;
+                        // }
+            
                     }
                 ],
             ],
