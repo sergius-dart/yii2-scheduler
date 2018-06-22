@@ -43,25 +43,13 @@ $this->params['breadcrumbs'][] = $this->title;
                 [
                     'class' => 'yii\grid\ActionColumn',
                     'template'=>'{delete}',
-                    'buttons' => [
-                        'delete' => function ($url, $model) {
-                            return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
-                                        'title' => Yii::t('app', 'delete'),
-                            ]);
-                        }
-                    ],
                     'urlCreator' => function ($action, $model, $key, $index) {
                         switch ($action){
                         case 'delete' :
                             return Url::to( [ 'delete-task', 'id'=>$model->id ] );
                         case 'update' :
                             return Url::to( [ 'update', 'id'=>$model->id ] );
-                        }
-                        // if ($action === 'delete') {
-                        //     $url ='index.php?r=client-login/lead-delete&id='.$model->id;
-                        //     return $url;
-                        // }
-            
+                        }            
                     }
                 ],
             ],

@@ -92,16 +92,6 @@ $this->params['breadcrumbs'][] = $model->__toString();
                         case 'delete' :
                             return Url::to( [ 'delete-log', 'id'=>$model->id ] );
                         }
-            
-                        // if ($action === 'update') {
-                        //     $url ='index.php?r=client-login/lead-update&id='.$model->id;
-                        //     return $url;
-                        // }
-                        // if ($action === 'delete') {
-                        //     $url ='index.php?r=client-login/lead-delete&id='.$model->id;
-                        //     return $url;
-                        // }
-            
                     }
                 ],
             ],

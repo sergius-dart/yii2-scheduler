@@ -33,6 +33,6 @@ class DeleteTaskAction extends Action
         }
 
         $model->delete(); //all logs autoclear by foreign key
-        return Yii::$app->controller->redirect(Yii::$app->request->referrer ?: Yii::$app->homeUrl);
+        return $this->controller->redirect(Yii::$app->request->referrer ?: Yii::$app->homeUrl);
     }
 }
