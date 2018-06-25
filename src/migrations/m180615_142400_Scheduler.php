@@ -1,7 +1,6 @@
 <?php
-
+namespace webtoolsnz\scheduler\migrations;
 use yii\db\Migration;
-
 /**
  * Class m180615_142400_Scheduler
  */
