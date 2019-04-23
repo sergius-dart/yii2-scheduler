@@ -15,7 +15,7 @@ class m180615_142400_Scheduler extends Migration
             'scheduler_log_id'=> $this->primaryKey(),
             'scheduler_task_id'=> $this->integer(11)->notNull(),
             'started_at'=> $this->timestamp()->notNull()->defaultExpression ('CURRENT_TIMESTAMP'),
-            'ended_at'=> $this->timestamp(),
+            'ended_at'=> $this->timestamp()->defaultValue(null),
             //TODO stdout/stderr?
             'output'=> $this->text(),
             'exit_code'=> $this->integer()
