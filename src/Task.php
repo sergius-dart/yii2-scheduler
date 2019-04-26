@@ -170,7 +170,7 @@ abstract class Task extends \yii\base\Component
             return true;
 
         //if last log too late
-        $due_last = ( new DateTime() )->getTimestamp() - (new DateTime( $model->started_at ) )->getTimestamp();
+        $due_last = ( new DateTime() )->getTimestamp() - (new DateTime( $model->lastLog->started_at ) )->getTimestamp();
         if ( $due_last > self::$overdueThreshold )
             return $forceRun;
 
